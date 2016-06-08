@@ -34,18 +34,23 @@ An example can be:
 
 ```python
 import numpy as np
-from abplotter import plot
-
-a = np.array(
-[[5.7735026919E-01, 0.0000000000E+00, 8.1649658093E-01],
-[-2.8867513459E-01, 5.0000000000E-01, 8.1649658093E-01],
-[-2.8867513459E-01, -5.0000000000E-01, 8.1649658093E-01]]
-) # lattice vectors
-q = [0,40,20,20,40,40,20,20] # segments of each high symmetry line
-Q = np.cumsum(q)
+from abplotter import plot,ha2ev,plot_pdos
+a = np.array([[.5,.5,.0],[.5,.0,.5],[.0,.5,.5]]) # lattice vectors
+Q = np.cumsum([0,40,20,20,40,40,20,20]) # positions of the special points
 point_names = ['$\Gamma$', 'X', 'U', 'L', '$\Gamma$', 'K', 'X', 'W']
-plot(a,"abinit.abo_DS2_EIG",Q,point_names,ymin=-5,ymax=8,fildos="abinit.abo_DS3_DOS") # with DOS
-# plot(a,"abinit.abo_DS2_EIG",Q,point_names) # without DOS
+ef = -3.94158
+
+# #if you want only the band without/with total DOS, you can use the line below
+# plot(a,"abinit.abo_DS2_EIG",Q,point_names,ef=ef,ymin=-4,ymax=7)# ,fildos="abinit.abo_DS3_DOS"
+
+# #if you want PDOS in a big figure, use the next two lines
+# atoms = ['Cs','Cs','Sn'] + 6*['Br']
+# plot_pdos('abinit.abo_DS3_',atoms,xmin=-4,xmax=8,ymax=20)
+
+# #if you want bands with PDOS, use the following lines
+atoms = ['Cs','Cs','Sn'] + 6*['Br']
+plot(a,"abinit.abo_DS2_EIG",Q,point_names,ymin=-4,ymax=7,ef=ef,
+    pdos_pref='abinit.abo_DS3_',atoms=atoms,pdos_max=15)
 ```
 
 ## qe-ph-pdos-mod

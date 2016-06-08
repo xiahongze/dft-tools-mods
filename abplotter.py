@@ -5,6 +5,7 @@
 # Created by Hongze Xia, 30 OCT 2015.
 
 import numpy as np
+import matplotlib.pylab as plt
 ha2ev = 2.7210E1
 def eig_reader (fn):
     """
@@ -66,17 +67,20 @@ def kline(kpts,a):
     segments = np.linalg.norm(kconv[1:] - kconv[:-1],axis=1)
     return np.cumsum(np.hstack((0,segments)))
 
-def plot(a,fileig,Q,point_names,ef=0,fildos=None,ymin=None,ymax=None):
+def plot(a,fileig,Q,point_names,ef=0,fildos=None,ymin=None,ymax=None
+        ,pdos_pref=None,atoms=None,pdos_max=None):
     """docstring for plot"""
-    import matplotlib.pylab as plt
-    fig = plt.figure(0,(10, 6))
+    fig = plt.figure(0,(12, 8))
     assert len(Q) == len(point_names), "Length of Q and point_names should be the same!"
     if fildos != None:
-        ax = plt.axes([.11, .07, .64, .85])
+        ax = plt.axes([.06, .05, .7, .85])
         ef,e,dos = dos_reader(fildos)
         e -= ef
+    elif pdos_pref:
+        ax = plt.axes([.06, .05, .7, .85])
     else:
         ax = fig.add_subplot(111)
+        
     eig,kpts = eig_reader(fileig)
     eig -= ef
     q = kline(kpts,a)
@@ -93,7 +97,7 @@ def plot(a,fileig,Q,point_names,ef=0,fildos=None,ymin=None,ymax=None):
     plt.ylim(ymin,ymax)
     ymin,ymax = plt.ylim()
     # add an extra ef on the right of the axis.... so troublesome
-#    ax1 = plt.axes([.11, .07, .64, .85],frameon=False)
+#    ax1 = plt.axes([.11, .05, .64, .85],frameon=False)
     ax1 = plt.axes(ax.get_position(),frameon=False)
     ax1.yaxis.tick_right()
     # plt.tick_params(axis='y', labelleft='on',labelright='on',labelsize=15)    
@@ -102,17 +106,25 @@ def plot(a,fileig,Q,point_names,ef=0,fildos=None,ymin=None,ymax=None):
     plt.yticks([0],['$\epsilon_{\mathrm{F}}$'],fontsize=15)
     plt.ylim(ymin,ymax)
 
-    if fildos != None:
-        plt.axes([.78, .07, 0.17, .85])
+    if fildos:
+        plt.axes([.79, .05, 0.20, .85])
         plt.plot(dos,e,'k-',lw=1)
         plt.ylim(ymin,ymax)
         plt.xticks([],[])
         plt.yticks([],[])
         plt.xlabel("DOS",fontsize=18)
+    
+    if pdos_pref:
+        ax2 = plt.axes([.79, .05, 0.20, .85])
+        plot_pdos(pdos_pref,atoms,ax=ax2)
+        ax2.set_xticks([],[])
+        ax2.set_yticks([],[])
+        ax2.set_ylim(ymin,ymax)
+        ax2.set_xlim(0,pdos_max)
     plt.show()
-    del plt
+    plt.close()
 
-def plot_pdos(prefix,atoms,xmin=None,xmax=None,ymin=None,ymax=None):
+def plot_pdos(prefix,atoms,ax=None,xmin=None,xmax=None,ymin=None,ymax=None):
     from glob import glob
     assert type(prefix) == str, "What is the prefix of your PDOS files?"
     filelist = glob(prefix+"*"); filelist.sort()
@@ -134,16 +146,28 @@ def plot_pdos(prefix,atoms,xmin=None,xmax=None,ymin=None,ymax=None):
     # for i in xrange(1,len(dt)):
     #     tdos += dt[i][1]
     # atomset = set(atoms)
-    import matplotlib.pylab as plt
-    fig = plt.figure(0,(10, 6))
-    plt.plot(e,tdos,label="Total DOS")
-    for i in xrange(len(atomset)):
-        plt.plot(e,pdos_by_atom[i].sum(axis=1),label=atomset[i])
+    if ax == None:
+        fig = plt.figure(0,(10, 6))
+        ax = plt.gca()
+        ax.plot(e,tdos,label="Total DOS")
+        for i in xrange(len(atomset)):
+            ax.plot(e,pdos_by_atom[i].sum(axis=1),label=atomset[i])
+        show = True
+        ax.set_xlabel("Electron energy (eV)",fontsize=18)
+        ax.set_ylabel("DOS (a.u.)",fontsize=18)
+        ax.legend(ncol=1)
+    else:
+        ax.plot(tdos,e,label="Total DOS")
+        for i in xrange(len(atomset)):
+            ax.plot(pdos_by_atom[i].sum(axis=1),e,label=atomset[i])
+        show = False
+        ax.set_xlabel("DOS (a.u.)",fontsize=18)
+        ax.legend(bbox_to_anchor=(0., 1.01, 1., .10), loc=3,
+                   ncol=2, mode="expand", borderaxespad=0.)
+        
         # for j in xrange(5):
             # plt.plot(e,pdos_by_atom[i,:,j],label="%s %s" %(atomset[i],orbitals[j]))
-    plt.xlim(xmin,xmax)
-    plt.ylim(ymin,ymax)
-    plt.legend(ncol=1)
-    plt.xlabel("Electron energy (eV)",fontsize=18)
-    plt.ylabel("DOS (a.u.)",fontsize=18)
-    plt.show()
+    ax.set_xlim(xmin,xmax)
+    ax.set_ylim(ymin,ymax)
+    if show:
+        plt.show()
