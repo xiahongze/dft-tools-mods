@@ -72,3 +72,15 @@ $YOUR_DIR_TO_QE/flib/dost.f90
 ```
 
 After replacing these two files, you can `cd $YOUR_DIR_TO_QE/PHonon/PH` and `make` to update QE.
+
+## yambo-tools
+
+Yambo is an excited state code that finds the quasi-particle energy levels using GW methods. Its convergence testing is very tedious and complex. Therefore, an automation tool and a visualisation function is provided to ease the burden of researchers.
+
+`ppa_conv.py`: one needs to set some parameters for the test, most of which have the same name as those in the yambo documentation.
+
+`plot_conv.py`: plot function.
+
+An example plot is shown below where the convergence of each parameters can be determined.
+
+<img src='yambo-tools/conv_test.jpg' width=600>

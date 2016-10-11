@@ -50,7 +50,7 @@ class ReadBand(object):
 
 def plot(infile,Q,point_names,efermi=0.0,edos=None,ymin=None,\
         ymax=None,dosarray=None,phonon=False,phdos=None,\
-        phunit="cm-1",comp=None,outfile="band.pdf"):
+        phunit="cm-1",comp=None,outfile="band.pdf",flip=False):
     """
     infile: str, QE output band file
     Q: list of integer, indices of spacial points starting
@@ -71,6 +71,8 @@ def plot(infile,Q,point_names,efermi=0.0,edos=None,ymin=None,\
         k-path in unit of 2pi/alat and the rest is eigenvalues.
         It assumes csv file is comma delimited.
     outfile: str, output band structure file
+    flip: boolean
+        DFT in solid line and external in dashed line.
     """
     # some checks
     if len(Q) != len(point_names):
@@ -95,7 +97,13 @@ def plot(infile,Q,point_names,efermi=0.0,edos=None,ymin=None,\
             dt = np.genfromtxt(comp,delimiter=",")
         q1 = dt[:,0]; b1 = dt[:,1:]
         del os
-
+    if not flip:
+        dftLine = 'k-'
+        extLine = 'k--'
+    else:
+        dftLine = 'k--'
+        extLine = 'k-'
+        
     b0 = ReadBand(filename=infile)
     b0.band = np.sort(b0.band)
     # construct the reciprocal path
@@ -149,10 +157,10 @@ def plot(infile,Q,point_names,efermi=0.0,edos=None,ymin=None,\
                 ymin = np.floor(b0.band.min()/100.)*100
     # plot the figure and some tweeks
     for n in range(b0.nbnd):
-        plt.plot(q, b0.band[:,n], 'k-', lw=1)
+        plt.plot(q, b0.band[:,n], dftLine, lw=1)
     if comp != None:
         for n in range(len(b1[0,:])):
-            plt.plot(q1,b1[:,n], 'k--', lw=1)
+            plt.plot(q1,b1[:,n], extLine, lw=1)
     plt.xticks(q[Q], point_names)
     plt.tick_params(axis='x', labeltop='on',labelsize=15,labelbottom='off')
     plt.yticks(fontsize=15)
