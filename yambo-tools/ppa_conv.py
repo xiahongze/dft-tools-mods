@@ -71,7 +71,7 @@ dScStep=  0.10000      eV    # [GW] Energy step to evaluate Z factors
 GTermKind= "none"            # [GW] GW terminator ("none","BG" Bruneval-Gonze,"BRS" Berger-Reining-Sottile)
 DysSolver= "n"               # [GW] Dyson Equation solver ("n","s","g")
 %QPkrange                    # [GW] QP generalized Kpoint/Band indices
-  1|  8|  1| 54|             # [HX] keep the last number the same as nbnd in the band structure calculation
+  1|  8|  1| 54|             # [HX] keep the last number the same as nbnd in the band structure calculation; the second number is the no of kpts
 %
 """
 
